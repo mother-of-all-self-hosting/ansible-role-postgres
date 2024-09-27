@@ -35,7 +35,7 @@ Example playbook:
   roles:
     - role: galaxy/com.devture.ansible.role.systemd_docker_base
 
-    - role: galaxy/com.devture.ansible.role.postgres
+    - role: galaxy/postgres
 
     - role: another_role
 ```
