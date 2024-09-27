@@ -10,7 +10,7 @@ This role *implicitly* depends on:
 
 ## Features
 
-- **multiple databases support**: this role manages one main database and root credentials, and optionally a list of additional managed databases with their own credentials (see `devture_postgres_managed_databases`)
+- **multiple databases support**: this role manages one main database and root credentials, and optionally a list of additional managed databases with their own credentials (see `postgres_managed_databases`)
 
 - **backward compatible**: even if a new Postgres version is available, the role will keep you on the Postgres version you had started with until you perform a major upgrade manually (see below)
 
@@ -43,23 +43,23 @@ Example playbook:
 Example playbook configuration (`group_vars/servers` or other):
 
 ```yaml
-devture_postgres_identifier: my-postgres
+postgres_identifier: my-postgres
 
-devture_postgres_base_path: "{{ my_base_path }}/postgres"
+postgres_base_path: "{{ my_base_path }}/postgres"
 
-devture_postgres_container_network: "{{ my_container_container_network }}"
+postgres_container_network: "{{ my_container_container_network }}"
 
-devture_postgres_uid: "{{ my_uid }}"
-devture_postgres_gid: "{{ my_gid }}"
+postgres_uid: "{{ my_uid }}"
+postgres_gid: "{{ my_gid }}"
 
-devture_postgres_vacuum_default_databases_list: ["mydb", "anotherdb"]
+postgres_vacuum_default_databases_list: ["mydb", "anotherdb"]
 
-devture_postgres_systemd_services_to_stop_for_maintenance_list: |
+postgres_systemd_services_to_stop_for_maintenance_list: |
   {{
     (['my-service.service'])
   }}
 
-devture_postgres_managed_databases: |
+postgres_managed_databases: |
   {{
     [{
       'name': my_database_name,
