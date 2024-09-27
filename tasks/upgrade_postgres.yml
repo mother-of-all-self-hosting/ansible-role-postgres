@@ -92,6 +92,7 @@
       {{ postgres_detected_version_corresponding_docker_image }}
       -c "pg_dumpall -h {{ postgres_identifier }}
       {{ '| gzip -c ' if postgres_dump_name.endswith('.gz') else '' }}
+      {{ '| zstd --stdout ' if postgres_dump_name.endswith('.zst') else '' }}
       > /out/{{ postgres_dump_name }}"
   register: postgres_upgrade_postgres_dump_command_result
   changed_when: postgres_upgrade_postgres_dump_command_result.rc == 0

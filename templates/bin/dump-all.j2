@@ -30,4 +30,4 @@ docker run \
 	--entrypoint=/bin/sh \
 	{{ postgres_container_image_to_use }} \
 	-c \
-	'set -o pipefail && pg_dumpall -h {{ postgres_identifier }} | gzip -c > /out/latest-dump.sql.gz'
+	'set -o pipefail && pg_dumpall -h {{ postgres_identifier }} | zstd --stdout > /out/latest-dump.sql.zst'

@@ -16,7 +16,7 @@ This role *implicitly* depends on:
 
 - **upgrading between major Postgres versions**: invoking the playbook with a `--tags=upgrade-postgres` performs a dump, data move (`data` -> `data-auto-upgrade-backup`), rebuild, and dump import
 
-- **importing existing Postgres database dumps**: you can import plain-text (`.sql`) or gzipped (`sql.gz`) dumps with the `--tags=import-postgres` tag
+- **importing existing Postgres database dumps**: you can import plain-text (`.sql`), gzipped (`sql.gz`), zstandard-compressed (`.sql.zst`) dumps with the `--tags=import-postgres` tag
 
 - **import data from SQLite, NeDB, etc**: this is an internal task (not exposed as a playbook tag), but the role supports using [pgloader](https://pgloader.io/) to load data into Postgres
 
