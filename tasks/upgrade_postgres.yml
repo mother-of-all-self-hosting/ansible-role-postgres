@@ -7,7 +7,7 @@
 
 - name: Set postgres_dump_name, if not provided
   ansible.builtin.set_fact:
-    postgres_dump_name: "{{ postgres_identifier }}-dump.sql.gz"
+    postgres_dump_name: "{{ postgres_identifier }}-dump.sql.zst"
   when: "postgres_dump_name | default('') == ''"
 
 - name: Set postgres_auto_upgrade_backup_data_path, if not provided
