@@ -3,7 +3,7 @@
 
 postgres_enabled: true
 
-# postgres_identifier controls the identifer of this Postgres instance, which influences:
+# postgres_identifier controls the identifier of this Postgres instance, which influences:
 # - the default storage path
 # - the names of systemd services
 # - the names of various helper scripts
