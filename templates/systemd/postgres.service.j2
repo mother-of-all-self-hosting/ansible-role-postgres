@@ -18,27 +18,27 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_s
 # - https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/1362
 # - https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/1268
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-			--rm \
-			--name {{ postgres_identifier }} \
-			--log-driver=none \
-			--user={{ postgres_uid }}:{{ postgres_gid }} \
-			--cap-drop=ALL \
-			--read-only \
-			--tmpfs=/tmp:rw,noexec,nosuid,size=100m \
-			--tmpfs=/run/postgresql:rw,noexec,nosuid,size=100m \
-			--shm-size={{ postgres_container_shm_size }} \
-			--network={{ postgres_container_network }} \
-			{% if postgres_container_postgres_bind_port %}
-			-p {{ postgres_container_postgres_bind_port }}:5432 \
-			{% endif %}
-			--env-file={{ postgres_base_path }}/env-postgres-server \
-			--mount type=bind,src={{ postgres_data_path }},dst=/var/lib/postgresql/data \
-			--mount type=bind,src=/etc/passwd,dst=/etc/passwd,ro \
-			{% for arg in postgres_container_extra_arguments %}
-			{{ arg }} \
-			{% endfor %}
-			{{ postgres_container_image_to_use }} \
-			postgres {{ postgres_process_extra_arguments|join(' ') }}
+      --rm \
+      --name {{ postgres_identifier }} \
+      --log-driver=none \
+      --user={{ postgres_uid }}:{{ postgres_gid }} \
+      --cap-drop=ALL \
+      --read-only \
+      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+      --tmpfs=/run/postgresql:rw,noexec,nosuid,size=100m \
+      --shm-size={{ postgres_container_shm_size }} \
+      --network={{ postgres_container_network }} \
+      {% if postgres_container_postgres_bind_port %}
+      -p {{ postgres_container_postgres_bind_port }}:5432 \
+      {% endif %}
+      --env-file={{ postgres_base_path }}/env-postgres-server \
+      --mount type=bind,src={{ postgres_data_path }},dst=/var/lib/postgresql/data \
+      --mount type=bind,src=/etc/passwd,dst=/etc/passwd,ro \
+      {% for arg in postgres_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
+      {{ postgres_container_image_to_use }} \
+      postgres {{ postgres_process_extra_arguments|join(' ') }}
 
 {% for network in postgres_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ postgres_identifier }}
