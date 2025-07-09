@@ -1,4 +1,9 @@
-#jinja2: lstrip_blocks: "True"
+{#
+SPDX-FileCopyrightText: 2022 - 2025 Slavi Pantaleev
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+#}
+
 [Unit]
 Description=Postgres server ({{ postgres_identifier }})
 {% for service in postgres_systemd_required_services_list %}
@@ -48,6 +53,7 @@ ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {
 
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ postgres_container_stop_grace_time_seconds }} {{ postgres_identifier }} 2>/dev/null || true'
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ postgres_identifier }} 2>/dev/null || true'
+
 Restart=always
 RestartSec=30
 SyslogIdentifier={{ postgres_identifier }}
