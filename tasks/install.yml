@@ -1,5 +1,4 @@
 ---
-
 - ansible.builtin.import_tasks: "{{ role_path }}/tasks/migrate_postgres_data_directory.yml"
 
 - ansible.builtin.import_tasks: "{{ role_path }}/tasks/detect_existing_postgres_version.yml"
@@ -44,7 +43,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0700
+    mode: "0700"
     owner: "{{ postgres_uid }}"
     group: "{{ postgres_gid }}"
   with_items:
@@ -58,7 +57,7 @@
     dest: "{{ postgres_base_path }}/{{ item }}"
     owner: "{{ postgres_uid }}"
     group: "{{ postgres_gid }}"
-    mode: 0640
+    mode: "0640"
   with_items:
     - "env-postgres-psql"
     - "env-postgres-server"
@@ -67,7 +66,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/bin/{{ item }}.j2"
     dest: "{{ postgres_bin_path }}/{{ item }}"
-    mode: 0755
+    mode: "0755"
   with_items:
     - cli
     - cli-non-interactive
@@ -84,7 +83,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/postgres.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ postgres_identifier }}.service"
-    mode: 0644
+    mode: "0644"
   register: postgres_systemd_service_result
 
 - name: Ensure managed Postgres databases prepared
