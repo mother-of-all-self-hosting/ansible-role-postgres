@@ -22,7 +22,7 @@
         devture_playbook_runtime_messages_list | default([])
         +
         [
-          "NOTE: Your setup is on an old Postgres version ({{ postgres_container_image_to_use }}), while {{ postgres_container_image_latest }} is supported. You can upgrade using --tags=upgrade-postgres"
+          "NOTE: Your setup is on an old Postgres version (" + postgres_container_image_to_use + "), while " + postgres_container_image_latest + " is supported. You can upgrade using --tags=upgrade-postgres"
         ]
       }}
   when: "postgres_container_image_to_use != postgres_container_image_latest"
