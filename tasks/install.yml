@@ -106,7 +106,7 @@
         devture_playbook_runtime_messages_list | default([])
         +
         [
-          "NOTE: You have some Postgres backup data in `{{ postgres_data_path }}-auto-upgrade-backup`, which was created during the last major Postgres update you ran. If your setup works well after this upgrade, feel free to delete this whole directory."
+          "NOTE: You have some Postgres backup data in `" + postgres_data_path + "-auto-upgrade-backup`, which was created during the last major Postgres update you ran. If your setup works well after this upgrade, feel free to delete this whole directory."
         ]
       }}
   when: "postgres_data_backup_path_stat.stat.exists"

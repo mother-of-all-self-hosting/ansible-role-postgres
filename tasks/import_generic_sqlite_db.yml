@@ -89,7 +89,7 @@
         devture_playbook_runtime_messages_list | default([])
         +
         [
-          "NOTE: Your SQLite database file has been imported into Postgres. The original file has been moved from `{{ sqlite_database_path }}` to `{{ sqlite_database_path }}.backup`. When you've confirmed that the import went well and everything works, you should be able to safely delete this file."
+          "NOTE: Your SQLite database file has been imported into Postgres. The original file has been moved from `" + sqlite_database_path + "` to `" + sqlite_database_path + ".backup`. When you've confirmed that the import went well and everything works, you should be able to safely delete this file."
         ]
       }}
 
