@@ -136,7 +136,7 @@ postgres_container_image_v9: "{{ postgres_container_image_registry_prefix }}post
 postgres_container_image_v10: "{{ postgres_container_image_registry_prefix }}postgres:10.23{{ postgres_container_image_suffix }}"
 postgres_container_image_v11: "{{ postgres_container_image_registry_prefix }}postgres:11.22{{ postgres_container_image_suffix }}"
 postgres_container_image_v12: "{{ postgres_container_image_registry_prefix }}postgres:12.22{{ postgres_container_image_suffix }}"
-postgres_container_image_v13: "{{ postgres_container_image_registry_prefix }}postgres:13.21{{ postgres_container_image_suffix }}"
+postgres_container_image_v13: "{{ postgres_container_image_registry_prefix }}postgres:13.22{{ postgres_container_image_suffix }}"
 postgres_container_image_v14: "{{ postgres_container_image_registry_prefix }}postgres:14.18{{ postgres_container_image_suffix }}"
 postgres_container_image_v15: "{{ postgres_container_image_registry_prefix }}postgres:15.13{{ postgres_container_image_suffix }}"
 postgres_container_image_v16: "{{ postgres_container_image_registry_prefix }}postgres:16.9{{ postgres_container_image_suffix }}"
