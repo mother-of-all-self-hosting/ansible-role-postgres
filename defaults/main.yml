@@ -184,6 +184,9 @@ postgres_container_stop_grace_time_seconds: "{{ [devture_systemd_docker_base_con
 # Controls whether the container will be started with a read-only filesystem.
 postgres_container_read_only_enabled: true
 
+# Controls whether the container will be started with dropped privileges (`--cap-drop=ALL`)
+postgres_container_cap_drop_all_enabled: true
+
 # A list of extra arguments to pass to the container
 postgres_container_extra_arguments: []
 
