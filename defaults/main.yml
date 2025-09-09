@@ -181,6 +181,9 @@ postgres_container_image_force_pull: "{{ postgres_container_image_to_use.endswit
 # we default to at least 30 seconds.
 postgres_container_stop_grace_time_seconds: "{{ [devture_systemd_docker_base_container_stop_grace_time_seconds, 30] | max }}"
 
+# Controls whether the container will be started with a read-only filesystem.
+postgres_container_read_only_enabled: true
+
 # A list of extra arguments to pass to the container
 postgres_container_extra_arguments: []
 
