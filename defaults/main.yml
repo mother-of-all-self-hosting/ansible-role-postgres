@@ -51,7 +51,15 @@ postgres_work_mem: "{{ 64 if postgres_work_mem_raw|int <= 64 else postgres_work_
 postgres_huge_pages: "{{ 'off' if postgres_memtotal_kb|int/1024/1024 < 32 else 'try' }}"
 
 # postgres_initdb_args controls POSTGRES_INITDB_ARGS
-postgres_initdb_args: '--lc-collate {{ postgres_default_lc_collate }} --lc-ctype {{ postgres_default_lc_type }} --encoding {{ postgres_default_encoding }}'
+postgres_initdb_args: "{{ postgres_initdb_args_list | join(' ') }}"
+
+postgres_initdb_args_list: "{{ postgres_initdb_args_list_default + postgres_initdb_args_list_auto + postgres_initdb_args_list_custom }}"
+postgres_initdb_args_list_default:
+  - "--lc-collate {{ postgres_default_lc_collate }}"
+  - "--lc-ctype {{ postgres_default_lc_type }}"
+  - "--encoding {{ postgres_default_encoding }}"
+postgres_initdb_args_list_auto: []
+postgres_initdb_args_list_custom: []
 
 # postgres_systemd_services_to_stop_for_maintenance_list specifies the list of systemd services to stop before upgrading or vacuuming (for certain vacuum operations).
 # These services will be restarted after the operation completes.
