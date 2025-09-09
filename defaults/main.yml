@@ -187,6 +187,14 @@ postgres_container_read_only_enabled: true
 # Controls whether the container will be started with dropped privileges (`--cap-drop=ALL`)
 postgres_container_cap_drop_all_enabled: true
 
+# Controls whether the host's /etc/passwd file is mounted (as read-only) into the container (at /etc/passwd).
+#
+# When running as root, we don't need to do this, as the container would likely swich to an account it already contains in its own /etc/passwd file.
+#
+# When running as non-root, we likely need to do this as we'd like for the UID (`postgres_uid`) we run as to resolve to a named user,
+# which likely already exists in the host's /etc/passwd file.
+postgres_container_mount_etc_passwd_enabled: "{{ postgres_uid != 0 }}"
+
 # A list of extra arguments to pass to the container
 postgres_container_extra_arguments: []
 

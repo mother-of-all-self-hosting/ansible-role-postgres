@@ -42,7 +42,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% endif %}
       --env-file={{ postgres_base_path }}/env-postgres-server \
       --mount type=bind,src={{ postgres_data_path }},dst=/var/lib/postgresql/data \
+      {% if postgres_container_mount_etc_passwd_enabled %}
       --mount type=bind,src=/etc/passwd,dst=/etc/passwd,ro \
+      {% endif %}
       {% for arg in postgres_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
