@@ -258,6 +258,10 @@ postgres_managed_databases_auto: []
 #   - name: another_database
 #     username: another_username
 #     password: another_password
+#     additional_sql_queries:
+#       - "SOME QUERY AGAINST MAIN DATABASE HERE;"
+#       - "\c another_database;"
+#       - "SOME QUERY AGAINST another_database HERE;"
 postgres_managed_databases_additional: []
 
 # A list of roles/users to avoid creating when importing (or upgrading) the database.
