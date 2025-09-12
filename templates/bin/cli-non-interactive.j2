@@ -2,6 +2,7 @@
 #!/bin/bash
 
 docker run \
+    -i \
     --rm \
     --user={{ postgres_uid }}:{{ postgres_gid }} \
     --cap-drop=ALL \
