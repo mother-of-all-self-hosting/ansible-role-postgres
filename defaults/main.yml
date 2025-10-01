@@ -174,7 +174,10 @@ postgres_container_image_v16_version: "16.10"
 postgres_container_image_v17: "{{ postgres_container_image_registry_prefix }}{{ postgres_container_image_name }}:{{ postgres_container_image_v17_version }}{{ postgres_container_image_suffix }}"
 postgres_container_image_v17_version: "17.6"
 
-postgres_container_image_latest: "{{ postgres_container_image_v17 }}"
+postgres_container_image_v18: "{{ postgres_container_image_registry_prefix }}{{ postgres_container_image_name }}:{{ postgres_container_image_v18_version }}{{ postgres_container_image_suffix }}"
+postgres_container_image_v18_version: "18.0"
+
+postgres_container_image_latest: "{{ postgres_container_image_v18 }}"
 
 # This variable is assigned at runtime. Overriding its value has no effect.
 postgres_container_image_to_use: '{{ postgres_container_image_latest }}'
