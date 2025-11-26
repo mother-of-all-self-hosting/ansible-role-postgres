@@ -34,7 +34,7 @@ postgres_default_encoding: UTF8
 
 # pgtune.leopard.in.ua implementation in ansible, based on https://github.com/le0pard/pgtune/blob/master/src/features/configuration/configurationSlice.js
 # The following block calculates optimal defaults, based on server's CPU and RAM, all calculations are in kb
-postgres_memtotal_kb: "{{ ansible_memtotal_mb*1024|int }}"
+postgres_memtotal_kb: "{{ ansible_facts['memtotal_mb']*1024|int }}"
 postgres_data_storage: ssd # possible values: ssd, hdd
 postgres_max_connections: 200
 postgres_shared_buffers: "{{ postgres_memtotal_kb|int/4 }}"
