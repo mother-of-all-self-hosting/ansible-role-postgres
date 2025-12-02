@@ -361,6 +361,15 @@ postgres_import_databases_to_ignore_custom: []
 # We also allow for the database name to be quoted, which is rare, but might happen for database names which are special keywords (e.g. `default`).
 postgres_import_databases_ignore_regex: "^CREATE DATABASE \\\"?({{ postgres_import_databases_to_ignore | join('|') }})\\\"?\\s" # noqa jinja[spacing]
 
+# A list of schemas to avoid creating when importing (or upgrading) the database.
+postgres_import_schemas_to_ignore: "{{ (postgres_import_schemas_to_ignore_default + postgres_import_schemas_to_ignore_auto + postgres_import_schemas_to_ignore_custom) | unique }}"
+postgres_import_schemas_to_ignore_default: []
+postgres_import_schemas_to_ignore_auto: []
+postgres_import_schemas_to_ignore_custom: []
+
+# We also allow for the schema name to be quoted, which is rare, but might happen for schema names which are special keywords.
+postgres_import_schemas_ignore_regex: "^CREATE SCHEMA \\\"?({{ postgres_import_schemas_to_ignore | join('|') }})\\\"?\\s" # noqa jinja[spacing]
+
 # The number of seconds to wait after starting Postgres systemd service
 # and before trying to run queries for initializing managed databases/users against it.
 #

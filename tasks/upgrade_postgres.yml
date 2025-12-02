@@ -153,6 +153,9 @@
       {% if postgres_import_databases_to_ignore | length > 0 %}
       grep -vE '{{ postgres_import_databases_ignore_regex }}' |
       {% endif %}
+      {% if postgres_import_schemas_to_ignore | length > 0 %}
+      grep -vE '{{ postgres_import_schemas_ignore_regex }}' |
+      {% endif %}
       psql -v ON_ERROR_STOP=1 -h {{ postgres_identifier }}"
   tags:
     - skip_ansible_lint
