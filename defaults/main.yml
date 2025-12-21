@@ -19,8 +19,8 @@ postgres_data_path: "{{ postgres_base_path }}/data"
 postgres_data_in_container_path: "/data"
 postgres_bin_path: "{{ postgres_base_path }}/bin"
 
-postgres_uid: ''
-postgres_gid: ''
+postgres_uid: ""
+postgres_gid: ""
 
 postgres_connection_hostname: "{{ postgres_identifier }}"
 postgres_connection_port: 5432
