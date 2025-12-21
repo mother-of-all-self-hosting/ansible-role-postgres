@@ -234,7 +234,7 @@ postgres_container_cap_drop_all_enabled: true
 # which likely already exists in the host's /etc/passwd file.
 postgres_container_mount_etc_passwd_enabled: "{{ postgres_uid != 0 }}"
 
-# A list of extra arguments to pass to the container
+# A list of extra arguments to pass to the container (`docker create` command)
 postgres_container_extra_arguments: "{{ postgres_container_extra_arguments_auto + postgres_container_extra_arguments_custom }}"
 postgres_container_extra_arguments_auto: []
 postgres_container_extra_arguments_custom: []
