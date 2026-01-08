@@ -81,9 +81,9 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ postgres_base_path }}/{{ item }}"
+    mode: "0640"
     owner: "{{ postgres_uid }}"
     group: "{{ postgres_gid }}"
-    mode: "0640"
   with_items:
     - "env-postgres-psql"
     - "env-postgres-server"
