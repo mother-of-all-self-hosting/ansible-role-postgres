@@ -277,7 +277,7 @@ postgres_process_extra_arguments: "{{ postgres_postgres_process_extra_arguments_
 #
 # psql postgresql://username:password@localhost:<port>/database_name
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:5432"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 postgres_container_postgres_bind_port: ""
 
 postgres_container_shm_size: "256m"
