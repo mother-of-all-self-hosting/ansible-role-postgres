@@ -239,6 +239,12 @@ postgres_container_cap_drop_all_enabled: true
 # which likely already exists in the host's /etc/passwd file.
 postgres_container_mount_etc_passwd_enabled: "{{ postgres_uid != 0 }}"
 
+# Specify the size of the container's tmpfs volume (/tmp)
+postgres_container_tmpfs_tmp_size: 128m
+
+# Specify the size of the container's tmpfs volume (/run/postgresql)
+postgres_container_tmpfs_run_size: 128m
+
 # A list of extra arguments to pass to the container (`docker create` command)
 postgres_container_extra_arguments: "{{ postgres_container_extra_arguments_auto + postgres_container_extra_arguments_custom }}"
 postgres_container_extra_arguments_auto: []
