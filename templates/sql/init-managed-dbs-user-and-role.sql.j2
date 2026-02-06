@@ -1,3 +1,5 @@
+{#- Managed database initialization for multiple databases -#}
+{% for managed_db in postgres_managed_databases_to_init %}
 -- `CREATE USER` does not support `IF NOT EXISTS`, so we use this workaround to prevent an error and raise a notice instead.
 -- Seen here: https://stackoverflow.com/a/49858797
 DO $$
@@ -19,3 +21,5 @@ CREATE DATABASE "{{ managed_db.name }}" WITH LC_CTYPE '{{ postgres_default_lc_ty
 ALTER DATABASE "{{ managed_db.name }}" OWNER TO "{{ managed_db.username }}";
 
 {{ managed_db.additional_sql_queries | default([]) | join("\n") }}
+
+{% endfor %}

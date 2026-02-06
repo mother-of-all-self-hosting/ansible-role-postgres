@@ -60,6 +60,9 @@ postgres_work_mem_raw: "{{ ((postgres_memtotal_kb|int - postgres_shared_buffers|
 postgres_work_mem: "{{ 64 if postgres_work_mem_raw|int <= 64 else postgres_work_mem_raw|int }}"
 postgres_huge_pages: "{{ 'off' if postgres_memtotal_kb|int/1024/1024 < 32 else 'try' }}"
 
+# Poll interval (seconds) while waiting for vacuum async job completion
+postgres_vacuum_poll_interval: 2
+
 # postgres_initdb_args controls POSTGRES_INITDB_ARGS
 postgres_initdb_args: "{{ postgres_initdb_args_list | join(' ') }}"
 
