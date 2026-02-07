@@ -52,6 +52,7 @@
       -h {{ postgres_connection_hostname }} -tA -c "SELECT rolname FROM pg_roles" postgres
   register: postgres_existing_roles_result
   changed_when: false
+  when: not postgres_managed_databases_force_init | bool
 
 - name: Fetch existing Postgres databases
   ansible.builtin.command:
@@ -69,6 +70,7 @@
       -h {{ postgres_connection_hostname }} -tA -c "SELECT datname FROM pg_database" postgres
   register: postgres_existing_databases_result
   changed_when: false
+  when: not postgres_managed_databases_force_init | bool
 
 - name: Normalize existing Postgres roles and databases
   ansible.builtin.set_fact:
@@ -88,6 +90,7 @@
         | reject('equalto', '')
         | list
       }}
+  when: not postgres_managed_databases_force_init | bool
 
 - name: Determine which managed databases require initialization
   ansible.builtin.set_fact:
@@ -97,7 +100,7 @@
       {%- set _ = m.update({db.name: ((db.username not in postgres_existing_roles) or (db.name not in postgres_existing_databases))}) -%}
       {%- endfor -%}
       {{ m }}
-
+  when: not postgres_managed_databases_force_init | bool
 
 - name: Collect managed databases which require initialization
   ansible.builtin.set_fact:
@@ -107,42 +110,53 @@
         | selectattr('name', 'in', (postgres_managed_db_needs_init_map | dict2items | selectattr('value', 'equalto', true) | map(attribute='key') | list))
         | list
       }}
+  when: not postgres_managed_databases_force_init | bool
+
+- name: Use full managed database list when forcing initialization
+  ansible.builtin.set_fact:
+    postgres_managed_databases_to_init: "{{ postgres_managed_databases }}"
+  when: postgres_managed_databases_force_init | bool
 
 
-- name: Create managed database initialization SQL file
-  ansible.builtin.template:
-    src: "{{ role_path }}/templates/sql/init-managed-dbs-user-and-role.sql.j2"
-    dest: "/tmp/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql"
-    mode: "0600"
-    owner: "{{ postgres_uid }}"
-    group: "{{ postgres_gid }}"
+- name: Initialize managed databases
+  no_log: true
   when: postgres_managed_databases_to_init | length > 0
+  block:
+    - name: Create managed database initialization SQL file
+      ansible.builtin.template:
+        src: "{{ role_path }}/templates/sql/init-managed-dbs-user-and-role.sql.j2"
+        dest: "/tmp/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql"
+        mode: "0600"
+        owner: "{{ postgres_uid }}"
+        group: "{{ postgres_gid }}"
 
+    - name: Execute Postgres managed database initialization SQL file
+      ansible.builtin.command:
+        cmd: >-
+          {{ devture_systemd_docker_base_host_command_docker }} run
+          --rm
+          --user={{ postgres_container_uid }}:{{ postgres_container_gid }}
+          {% if postgres_container_cap_drop_all_enabled %}
+          --cap-drop=ALL
+          {% endif %}
+          --env-file={{ postgres_base_path }}/env-postgres-psql
+          --network={{ postgres_container_network_for_preparing_databases }}
+          --mount type=bind,src=/tmp/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql,dst=/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql,ro
+          --entrypoint={{ postgres_container_shell_path }}
+          {{ postgres_container_image_to_use }}
+          -c
+          'psql -v ON_ERROR_STOP=0 -h {{ postgres_connection_hostname }} --file=/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql'
+      changed_when: true
+      register: postgres_managed_dbs_init_result
+      failed_when: >-
+        (postgres_managed_dbs_init_result.stderr | default('')) is search('ERROR:')
+        or
+        (postgres_managed_dbs_init_result.stdout | default('')) is search('ERROR:')
 
-- name: Execute Postgres managed database initialization SQL file
-  ansible.builtin.command:
-    cmd: >-
-      {{ devture_systemd_docker_base_host_command_docker }} run
-      --rm
-      --user={{ postgres_container_uid }}:{{ postgres_container_gid }}
-      {% if postgres_container_cap_drop_all_enabled %}
-      --cap-drop=ALL
-      {% endif %}
-      --env-file={{ postgres_base_path }}/env-postgres-psql
-      --network={{ postgres_container_network_for_preparing_databases }}
-      --mount type=bind,src=/tmp/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql,dst=/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql,ro
-      --entrypoint={{ postgres_container_shell_path }}
-      {{ postgres_container_image_to_use }}
-      -c
-      'psql -h {{ postgres_connection_hostname }} --file=/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql'
-  changed_when: true
-  when: postgres_managed_databases_to_init | length > 0
-
-- name: Delete managed database initialization SQL file
-  ansible.builtin.file:
-    path: /tmp/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql
-    state: absent
-  when: postgres_managed_databases_to_init | length > 0
+    - name: Delete managed database initialization SQL file
+      ansible.builtin.file:
+        path: /tmp/{{ postgres_identifier }}-init-managed-dbs-user-and-role.sql
+        state: absent
 
 - name: Ensure Postgres is stopped, if it originally was and if we are configured to do it
   when: postgres_systemd_service_stop_originally_stopped_after_preparation | bool and postgres_ensure_started_result.changed | bool

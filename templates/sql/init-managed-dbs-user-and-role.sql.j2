@@ -1,4 +1,8 @@
 {#- Managed database initialization for multiple databases -#}
+\set ON_ERROR_STOP off
+-- Keep going on errors so each managed DB/user gets a chance.
+-- The task runner inspects psql output and fails after execution if errors were reported.
+
 {% for managed_db in postgres_managed_databases_to_init %}
 -- `CREATE USER` does not support `IF NOT EXISTS`, so we use this workaround to prevent an error and raise a notice instead.
 -- Seen here: https://stackoverflow.com/a/49858797
@@ -14,8 +18,19 @@ $$;
 -- TODO - we should escape quotes in the password.
 ALTER ROLE "{{ managed_db.username }}" PASSWORD '{{ managed_db.password }}';
 
--- This will generate an error on subsequent execution
-CREATE DATABASE "{{ managed_db.name }}" WITH LC_CTYPE '{{ postgres_default_lc_type }}' LC_COLLATE '{{ postgres_default_lc_collate }}' OWNER "{{ managed_db.username }}";
+-- `CREATE DATABASE` cannot run inside a transaction block and does not support `IF NOT EXISTS`.
+-- Use a meta-command to conditionally execute it only when missing, avoiding an ERROR that would fail the task after execution.
+SELECT format(
+  'CREATE DATABASE "%s" WITH LC_CTYPE %L LC_COLLATE %L OWNER "%s";',
+  '{{ managed_db.name }}',
+  '{{ postgres_default_lc_type }}',
+  '{{ postgres_default_lc_collate }}',
+  '{{ managed_db.username }}'
+)
+WHERE NOT EXISTS (
+  SELECT 1 FROM pg_database WHERE datname = '{{ managed_db.name }}'
+)
+\gexec
 
 -- This is useful for changing the database owner subsequently
 ALTER DATABASE "{{ managed_db.name }}" OWNER TO "{{ managed_db.username }}";
