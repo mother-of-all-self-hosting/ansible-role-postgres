@@ -310,6 +310,9 @@ postgres_systemd_required_services_list: "{{ [devture_systemd_docker_base_docker
 # See `postgres_managed_databases_additional` for the correct syntax.
 postgres_managed_databases: "{{ postgres_managed_databases_auto + postgres_managed_databases_additional }}"
 
+# Force (re)initialization of all managed databases, ignoring existence checks.
+postgres_managed_databases_force_init: false
+
 # Additional/managed database definitions managed by the playbook.
 # To add your own, use `postgres_managed_databases_additional`
 postgres_managed_databases_auto: []
