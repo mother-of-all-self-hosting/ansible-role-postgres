@@ -1,4 +1,4 @@
-{% for managed_db in postgres_managed_databases_to_init %}
+{% for managed_db in postgres_managed_databases %}
 -- `CREATE USER` does not support `IF NOT EXISTS`, so we use this workaround to prevent an error and raise a notice instead.
 -- Seen here: https://stackoverflow.com/a/49858797
 DO $$

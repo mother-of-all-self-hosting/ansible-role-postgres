@@ -26,7 +26,7 @@
   ansible.builtin.set_fact:
     postgres_container_network_for_preparing_databases: "{{ postgres_container_network_check_result.stdout }}"
 
-- name: Detect managed databases with invalid or renamed fields
+- name: Detect managed databases with invalid fields
   ansible.builtin.set_fact:
     postgres_managed_databases_with_missing_keys: >-
       {%- set result = [] -%}
@@ -37,8 +37,6 @@
         {%- endif -%}
       {%- endfor -%}
       {{ result }}
-    postgres_managed_databases_with_renamed_field: >-
-      {{ postgres_managed_databases | selectattr('additional_sql_queries', 'defined') | map(attribute='name') | list }}
   no_log: true
 
 - name: Fail if managed database data appears invalid
@@ -50,99 +48,9 @@
       {% endfor %}
   when: postgres_managed_databases_with_missing_keys | length > 0
 
-- name: Fail if managed database uses renamed additional_sql_queries field
-  ansible.builtin.fail:
-    msg: >-
-      The following managed databases use `additional_sql_queries`, which has been renamed to `additional_init_sql_queries`:
-      {{ postgres_managed_databases_with_renamed_field | join(', ') }}.
-      The rename reflects that these queries only run during initial database creation.
-      By default, `postgres_managed_databases_init_skips_existing_enabled` is enabled, which means
-      databases whose role and database already exist will not be re-initialized and their `additional_init_sql_queries` will not run.
-      Set `postgres_managed_databases_init_skips_existing_enabled` to `false` to force re-initialization of all managed databases.
-  when: postgres_managed_databases_with_renamed_field | length > 0
-
-- name: Determine managed databases to initialize by checking existing roles and databases
-  when: postgres_managed_databases_init_skips_existing_enabled | bool
-  block:
-    - name: Fetch existing Postgres roles
-      ansible.builtin.command:
-        cmd: >-
-          {{ devture_systemd_docker_base_host_command_docker }} run
-          --rm
-          --user={{ postgres_container_uid }}:{{ postgres_container_gid }}
-          {% if postgres_container_cap_drop_all_enabled %}
-          --cap-drop=ALL
-          {% endif %}
-          --env-file={{ postgres_base_path }}/env-postgres-psql
-          --network={{ postgres_container_network_for_preparing_databases }}
-          --entrypoint=psql
-          {{ postgres_container_image_to_use }}
-          -h {{ postgres_connection_hostname }} -tA -c "SELECT rolname FROM pg_roles" postgres
-      register: postgres_existing_roles_result
-      changed_when: false
-
-    - name: Fetch existing Postgres databases
-      ansible.builtin.command:
-        cmd: >-
-          {{ devture_systemd_docker_base_host_command_docker }} run
-          --rm
-          --user={{ postgres_container_uid }}:{{ postgres_container_gid }}
-          {% if postgres_container_cap_drop_all_enabled %}
-          --cap-drop=ALL
-          {% endif %}
-          --env-file={{ postgres_base_path }}/env-postgres-psql
-          --network={{ postgres_container_network_for_preparing_databases }}
-          --entrypoint=psql
-          {{ postgres_container_image_to_use }}
-          -h {{ postgres_connection_hostname }} -tA -c "SELECT datname FROM pg_database" postgres
-      register: postgres_existing_databases_result
-      changed_when: false
-
-    - name: Normalize existing Postgres roles and databases
-      ansible.builtin.set_fact:
-        postgres_existing_roles: >-
-          {{
-            postgres_existing_roles_result.stdout_lines
-            | default([])
-            | map('trim')
-            | reject('equalto', '')
-            | list
-          }}
-        postgres_existing_databases: >-
-          {{
-            postgres_existing_databases_result.stdout_lines
-            | default([])
-            | map('trim')
-            | reject('equalto', '')
-            | list
-          }}
-
-    - name: Determine which managed databases require initialization
-      ansible.builtin.set_fact:
-        postgres_managed_db_needs_init_map: >-
-          {%- set m = {} -%}
-          {%- for db in postgres_managed_databases -%}
-          {%- set _ = m.update({db.name: ((db.username not in postgres_existing_roles) or (db.name not in postgres_existing_databases))}) -%}
-          {%- endfor -%}
-          {{ m }}
-
-    - name: Collect managed databases which require initialization
-      ansible.builtin.set_fact:
-        postgres_managed_databases_to_init: >-
-          {{
-            postgres_managed_databases
-            | selectattr('name', 'in', (postgres_managed_db_needs_init_map | dict2items | selectattr('value', 'equalto', true) | map(attribute='key') | list))
-            | list
-          }}
-
-- name: Use full managed database list when forcing initialization
-  ansible.builtin.set_fact:
-    postgres_managed_databases_to_init: "{{ postgres_managed_databases }}"
-  when: not postgres_managed_databases_init_skips_existing_enabled | bool
-
 - name: Initialize managed databases
   no_log: true
-  when: postgres_managed_databases_to_init | length > 0
+  when: postgres_managed_databases | length > 0
   block:
     - name: Create managed database initialization SQL file
       ansible.builtin.template:
