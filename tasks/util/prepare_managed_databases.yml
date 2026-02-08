@@ -37,7 +37,7 @@
   when: missing_keys | length > 0
 
 - name: Determine managed databases to initialize by checking existing roles and databases
-  when: not postgres_managed_databases_force_init | bool
+  when: postgres_managed_databases_init_skips_existing_enabled | bool
   block:
     - name: Fetch existing Postgres roles
       ansible.builtin.command:
@@ -113,7 +113,7 @@
 - name: Use full managed database list when forcing initialization
   ansible.builtin.set_fact:
     postgres_managed_databases_to_init: "{{ postgres_managed_databases }}"
-  when: postgres_managed_databases_force_init | bool
+  when: not postgres_managed_databases_init_skips_existing_enabled | bool
 
 
 - name: Initialize managed databases

@@ -310,8 +310,11 @@ postgres_systemd_required_services_list: "{{ [devture_systemd_docker_base_docker
 # See `postgres_managed_databases_additional` for the correct syntax.
 postgres_managed_databases: "{{ postgres_managed_databases_auto + postgres_managed_databases_additional }}"
 
-# Force (re)initialization of all managed databases, ignoring existence checks.
-postgres_managed_databases_force_init: false
+# Controls whether database initialization skips managed databases whose role and database already exist.
+# When enabled (default), the role queries pg_roles and pg_database before running init SQL
+# and only initializes databases/users that are missing.
+# Disable this to force (re)initialization of all managed databases unconditionally.
+postgres_managed_databases_init_skips_existing_enabled: true
 
 # Additional/managed database definitions managed by the playbook.
 # To add your own, use `postgres_managed_databases_additional`
@@ -326,6 +329,8 @@ postgres_managed_databases_auto: []
 #   - name: another_database
 #     username: another_username
 #     password: another_password
+#     # Note: additional_sql_queries only run during initial database creation.
+#     # Once the database and role exist, they are skipped (unless postgres_managed_databases_init_skips_existing_enabled is set to false).
 #     additional_sql_queries:
 #       - "SOME QUERY AGAINST MAIN DATABASE HERE;"
 #       - "\c another_database;"
