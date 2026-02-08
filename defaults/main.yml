@@ -329,9 +329,9 @@ postgres_managed_databases_auto: []
 #   - name: another_database
 #     username: another_username
 #     password: another_password
-#     # Note: additional_sql_queries only run during initial database creation.
+#     # Note: additional_init_sql_queries only run during initial database creation.
 #     # Once the database and role exist, they are skipped (unless postgres_managed_databases_init_skips_existing_enabled is set to false).
-#     additional_sql_queries:
+#     additional_init_sql_queries:
 #       - "SOME QUERY AGAINST MAIN DATABASE HERE;"
 #       - "\c another_database;"
 #       - "SOME QUERY AGAINST another_database HERE;"
