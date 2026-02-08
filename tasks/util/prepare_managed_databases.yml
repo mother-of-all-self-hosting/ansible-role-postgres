@@ -162,9 +162,9 @@
       changed_when: true
       register: postgres_managed_dbs_init_result
       failed_when: >-
-        (postgres_managed_dbs_init_result.stderr | default('')) is search('ERROR:')
+        (postgres_managed_dbs_init_result.stderr | default('')) is search('(?m)^ERROR:')
         or
-        (postgres_managed_dbs_init_result.stdout | default('')) is search('ERROR:')
+        (postgres_managed_dbs_init_result.stdout | default('')) is search('(?m)^ERROR:')
 
     - name: Delete managed database initialization SQL file
       ansible.builtin.file:
