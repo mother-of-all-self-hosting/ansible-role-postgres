@@ -140,22 +140,6 @@
     postgres_managed_databases_to_init: "{{ postgres_managed_databases }}"
   when: not postgres_managed_databases_init_skips_existing_enabled | bool
 
-- name: Inject warning if skipping databases that define additional_init_sql_queries
-  ansible.builtin.set_fact:
-    devture_playbook_runtime_messages_list: |
-      {{
-        devture_playbook_runtime_messages_list | default([])
-        +
-        [
-          "NOTE: `postgres_managed_databases_init_skips_existing_enabled` is turned on (default). The following managed databases already exist and their `additional_init_sql_queries` will not run: "
-          + (postgres_managed_databases | difference(postgres_managed_databases_to_init) | selectattr('additional_init_sql_queries', 'defined') | map(attribute='name') | list | join(', '))
-          + ". To force re-initialization of all managed databases, set `postgres_managed_databases_init_skips_existing_enabled` to `false`."
-        ]
-      }}
-  when:
-    - postgres_managed_databases_init_skips_existing_enabled | bool
-    - (postgres_managed_databases | difference(postgres_managed_databases_to_init) | selectattr('additional_init_sql_queries', 'defined') | list | length) > 0
-
 - name: Initialize managed databases
   no_log: true
   when: postgres_managed_databases_to_init | length > 0
