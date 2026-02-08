@@ -30,6 +30,6 @@ WHERE NOT EXISTS (
 -- This is useful for changing the database owner subsequently
 ALTER DATABASE "{{ managed_db.name }}" OWNER TO "{{ managed_db.username }}";
 
-{{ managed_db.additional_sql_queries | default([]) | join("\n") }}
+{{ managed_db.additional_init_sql_queries | default([]) | join("\n") }}
 
 {% endfor %}
