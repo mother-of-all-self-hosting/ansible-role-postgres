@@ -26,28 +26,40 @@
   ansible.builtin.set_fact:
     postgres_container_network_for_preparing_databases: "{{ postgres_container_network_check_result.stdout }}"
 
+- name: Detect managed databases with invalid or renamed fields
+  ansible.builtin.set_fact:
+    postgres_managed_databases_with_missing_keys: >-
+      {%- set result = [] -%}
+      {%- for db in postgres_managed_databases -%}
+        {%- set missing = ['name', 'username', 'password'] | difference(db.keys() | list) -%}
+        {%- if missing | length > 0 -%}
+          {%- set _ = result.append({'name': db.name | default('<unknown>'), 'missing': missing}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ result }}
+    postgres_managed_databases_with_renamed_field: >-
+      {{ postgres_managed_databases | selectattr('additional_sql_queries', 'defined') | map(attribute='name') | list }}
+  no_log: true
+
 - name: Fail if managed database data appears invalid
   ansible.builtin.fail:
-    msg: "Managed database definition ({{ item }}) lacks required keys: {{ missing_keys | join(', ') }}"
-  loop: "{{ postgres_managed_databases }}"
-  loop_control:
-    loop_var: item
-  vars:
-    missing_keys: "{{ ['name', 'username', 'password'] | difference(item.keys() | list) }}"
-  when: missing_keys | length > 0
+    msg: >-
+      The following managed database definitions lack required keys:
+      {% for db in postgres_managed_databases_with_missing_keys %}
+      {{ db.name }} (missing: {{ db.missing | join(', ') }}){% if not loop.last %}, {% endif %}
+      {% endfor %}
+  when: postgres_managed_databases_with_missing_keys | length > 0
 
 - name: Fail if managed database uses renamed additional_sql_queries field
   ansible.builtin.fail:
     msg: >-
-      Managed database definition ({{ item.name }}) uses `additional_sql_queries`, which has been renamed to `additional_init_sql_queries`.
+      The following managed databases use `additional_sql_queries`, which has been renamed to `additional_init_sql_queries`:
+      {{ postgres_managed_databases_with_renamed_field | join(', ') }}.
       The rename reflects that these queries only run during initial database creation.
       By default, `postgres_managed_databases_init_skips_existing_enabled` is enabled, which means
       databases whose role and database already exist will not be re-initialized and their `additional_init_sql_queries` will not run.
       Set `postgres_managed_databases_init_skips_existing_enabled` to `false` to force re-initialization of all managed databases.
-  loop: "{{ postgres_managed_databases }}"
-  loop_control:
-    loop_var: item
-  when: "'additional_sql_queries' in item"
+  when: postgres_managed_databases_with_renamed_field | length > 0
 
 - name: Determine managed databases to initialize by checking existing roles and databases
   when: postgres_managed_databases_init_skips_existing_enabled | bool
