@@ -1,8 +1,3 @@
-{#- Managed database initialization for multiple databases -#}
-\set ON_ERROR_STOP off
--- Keep going on errors so each managed DB/user gets a chance.
--- The task runner inspects psql output and fails after execution if errors were reported.
-
 {% for managed_db in postgres_managed_databases_to_init %}
 -- `CREATE USER` does not support `IF NOT EXISTS`, so we use this workaround to prevent an error and raise a notice instead.
 -- Seen here: https://stackoverflow.com/a/49858797
