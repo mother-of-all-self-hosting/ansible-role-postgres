@@ -323,7 +323,7 @@ postgres_managed_databases_auto: []
 #   - name: another_database
 #     username: another_username
 #     password: another_password
-#     additional_init_sql_queries:
+#     additional_sql_queries:
 #       - "SOME QUERY AGAINST MAIN DATABASE HERE;"
 #       - "\c another_database;"
 #       - "SOME QUERY AGAINST another_database HERE;"
