@@ -10,12 +10,12 @@
       --network={{ postgres_container_network_for_vacuuming }}
       --env-file={{ postgres_base_path }}/env-postgres-psql
       {{ postgres_detected_version_corresponding_container_image }}
-      psql -v ON_ERROR_STOP=1 -h {{ postgres_identifier }} {{ postgres_database_to_vacuum }} -c '{{ postgres_vacuum_query }}'
+      /bin/sh -c 'for db in {{ postgres_vacuum_databases_list | join(" ") }}; do echo "VACUUM start: $db"; if ! psql -v ON_ERROR_STOP=1 -h {{ postgres_identifier }} "$db" -c "{{ postgres_vacuum_query }}"; then echo "VACUUM failed: $db"; exit 1; fi; echo "VACUUM done: $db"; done; echo "VACUUM completed for all databases"'
 
 - name: Note about Postgres vacuum alternative
   ansible.builtin.debug:
     msg: >-
-      Running vacuum against the `{{ postgres_database_to_vacuum }}` database with the following Postgres command:
+      Running vacuum against the databases `{{ postgres_vacuum_databases_list | join(", ") }}` with the following Postgres command:
       `{{ postgres_vacuum_run_command }}`.
       If this crashes, you can stop all processes which may use the database (`systemctl stop example.service another.service`),
       start Postgres only (`systemctl start {{ postgres_identifier }}`)

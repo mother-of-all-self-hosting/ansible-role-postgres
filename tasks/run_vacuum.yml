@@ -85,9 +85,6 @@
 
 - name: Run Postgres vacuum against specified databases
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/util/vacuum_database.yml"
-  with_items: "{{ postgres_vacuum_databases_list }}"
-  loop_control:
-    loop_var: postgres_database_to_vacuum
 
 - name: Ensure Postgres is stopped (if it previously was)
   when: postgres_ensure_started_result.changed | bool
