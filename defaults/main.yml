@@ -171,7 +171,7 @@ postgres_container_image_v13: "{{ postgres_container_image_registry_prefix }}{{ 
 postgres_container_image_v13_version: "13.23"
 
 postgres_container_image_v14: "{{ postgres_container_image_registry_prefix }}{{ postgres_container_image_name }}:{{ postgres_container_image_v14_version }}{{ postgres_container_image_suffix }}"
-postgres_container_image_v14_version: "14.20"
+postgres_container_image_v14_version: "14.21"
 
 postgres_container_image_v15: "{{ postgres_container_image_registry_prefix }}{{ postgres_container_image_name }}:{{ postgres_container_image_v15_version }}{{ postgres_container_image_suffix }}"
 postgres_container_image_v15_version: "15.15"
