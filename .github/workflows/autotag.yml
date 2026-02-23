@@ -23,12 +23,15 @@ jobs:
       # Latest Postgres major version to auto-tag
       # Update this when a new major version becomes the latest
       POSTGRES_LATEST_MAJOR: "18"
+      # Number of commits to check for Renovate updates
+      # Increase if you experience high commit frequency
+      COMMIT_FETCH_DEPTH: "20"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 20  # Ensure enough history is available
+          fetch-depth: ${{ env.COMMIT_FETCH_DEPTH }}  # Ensure enough history is available
 
       - name: Set up Git config
         run: |
@@ -41,10 +44,10 @@ jobs:
       - name: Find latest Renovate Docker commit for v18
         id: find_renovate_commit
         run: |
-          # Check the last 20 commits for a Renovate update to the latest Postgres major version
-          # This should be sufficient even during periods of multiple updates
+          # Check recent commits for a Renovate update to the latest Postgres major version
           MAJOR_VERSION="${POSTGRES_LATEST_MAJOR}"
-          git log -n 20 --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
+          DEPTH="${COMMIT_FETCH_DEPTH}"
+          git log -n "$DEPTH" --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
             # Match only postgres Docker tag updates to the latest major version
             # Pattern: "Update postgres Docker tag to v18.X"
             if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"update postgres docker tag to v${MAJOR_VERSION}."* ]]; then
