@@ -40,8 +40,10 @@ jobs:
           # This should be sufficient even during periods of multiple updates
           git log -n 20 --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
             # Match only postgres Docker tag updates to v18
-            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"postgres docker tag to v18."* ]]; then
+            # Pattern: "Update postgres Docker tag to v18.X"
+            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"update postgres docker tag to v18."* ]]; then
               # Convert subject to lowercase for consistent regex matching
+              # Postgres versions use major.minor format (e.g., 18.2, not 18.2.1)
               VERSION=$(echo "${subject,,}" | sed -E 's/.*docker tag to (v[0-9]+\.[0-9]+).*$/\1/')
               echo "new_version=$VERSION" >> $GITHUB_OUTPUT
               echo "commit_hash=$commit" >> $GITHUB_OUTPUT
