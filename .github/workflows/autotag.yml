@@ -19,6 +19,11 @@ jobs:
     name: Autotag dependency updates
     runs-on: ubuntu-latest
 
+    env:
+      # Latest Postgres major version to auto-tag
+      # Update this when a new major version becomes the latest
+      POSTGRES_LATEST_MAJOR: "18"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -36,19 +41,26 @@ jobs:
       - name: Find latest Renovate Docker commit for v18
         id: find_renovate_commit
         run: |
-          # Check the last 20 commits for a Renovate update to v18
+          # Check the last 20 commits for a Renovate update to the latest Postgres major version
           # This should be sufficient even during periods of multiple updates
+          MAJOR_VERSION="${POSTGRES_LATEST_MAJOR}"
           git log -n 20 --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
-            # Match only postgres Docker tag updates to v18
+            # Match only postgres Docker tag updates to the latest major version
             # Pattern: "Update postgres Docker tag to v18.X"
-            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"update postgres docker tag to v18."* ]]; then
+            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"update postgres docker tag to v${MAJOR_VERSION}."* ]]; then
               # Convert subject to lowercase for consistent regex matching
               # Postgres versions use major.minor format (e.g., 18.2, not 18.2.1)
               VERSION=$(echo "${subject,,}" | sed -E 's/.*docker tag to (v[0-9]+\.[0-9]+).*$/\1/')
-              echo "new_version=$VERSION" >> $GITHUB_OUTPUT
-              echo "commit_hash=$commit" >> $GITHUB_OUTPUT
-              echo "Found Renovate commit: $commit with version: $VERSION"
-              break
+
+              # Validate extracted version matches expected format
+              if [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+$ ]]; then
+                echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+                echo "commit_hash=$commit" >> $GITHUB_OUTPUT
+                echo "Found Renovate commit: $commit with version: $VERSION"
+                break
+              else
+                echo "Warning: Extracted version '$VERSION' does not match expected format"
+              fi
             fi
           done
 
