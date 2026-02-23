@@ -36,9 +36,12 @@ jobs:
       - name: Find latest Renovate Docker commit for v18
         id: find_renovate_commit
         run: |
+          # Check the last 20 commits for a Renovate update to v18
+          # This should be sufficient even during periods of multiple updates
           git log -n 20 --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
             if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"docker tag to v18."* ]]; then
-              VERSION=$(echo "$subject" | sed -E 's/.*[Dd]ocker tag to (v[0-9]+\.[0-9]+).*$/\1/')
+              # Convert subject to lowercase for consistent regex matching
+              VERSION=$(echo "${subject,,}" | sed -E 's/.*docker tag to (v[0-9]+\.[0-9]+).*$/\1/')
               echo "new_version=$VERSION" >> $GITHUB_OUTPUT
               echo "commit_hash=$commit" >> $GITHUB_OUTPUT
               echo "Found Renovate commit: $commit with version: $VERSION"
