@@ -34,4 +34,4 @@ docker run \
     --entrypoint={{ postgres_container_shell_path }} \
     {{ postgres_container_image_to_use }} \
     -c \
-    'set -o pipefail && pg_dumpall -h {{ postgres_identifier }} | zstd --stdout > /out/latest-dump.sql.zst'
+    'set -o pipefail && pg_dumpall -h {{ postgres_run_path_in_container if postgres_cli_use_unix_socket_enabled else postgres_connection_hostname }} | zstd --stdout > /out/latest-dump.sql.zst'
