@@ -43,11 +43,15 @@ pip3 install -r ./molecule/requirements.txt
 
 ## Scenarios
 
-Currently there is one testing scenario available.
+Currently these testing scenarios are available:
+
+### `(version number)`
+
+Tests a standard Postgres installation with the specified Postgres version.
 
 ### `default`
 
-Tests a standard Postgres installation.
+Tests a standard Postgres installation with the latest Postgres version.
 
 ## Running
 

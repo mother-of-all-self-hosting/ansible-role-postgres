@@ -18,6 +18,7 @@ jobs:
           - ubuntu2604
           - debian13
         scenario:
+          - "17"
           - default
       fail-fast: false
 
