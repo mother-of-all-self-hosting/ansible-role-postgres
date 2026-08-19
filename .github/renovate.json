@@ -10,35 +10,21 @@
   "separateMajorMinor": true,
   "packageRules": [
     {
-      "matchPackageNames": ["/postgres/"],
-      "matchUpdateTypes": ["major", "patch"],
-      "enabled": false
+      "matchManagers": ["github-actions"],
+      "commitBody": "[skip ci]",
+      "schedule": ["* * 1-7 */6 *"],
+      "automergeSchedule": ["* * 1-14 */6 *"],
+      "groupName": "GitHub Actions dependencies"
     },
     {
-      "matchFileNames": [
-        ".github/workflows/close-stale-issues.yml",
-        ".github/workflows/molecule.yml",
-        ".github/workflows/pre-commit.yml",
-        ".pre-commit-config.yaml",
-        ".python-version",
-        "mise.toml",
-        "molecule/requirements.txt"
-      ],
-      "enabled": true,
-      "automerge": true,
-      "automergeType": "branch",
-      "schedule": ["* * 1 */6 *"],
+      "matchManagers": ["mise", "pip_requirements", "pre-commit", "pyenv"],
+      "schedule": ["* * 1-7 */6 *"],
       "automergeSchedule": ["* * 1-14 */6 *"]
     },
     {
-      "matchFileNames": [
-        "molecule/**/requirements.yml"
-      ],
-      "enabled": true,
-      "automerge": true,
-      "automergeType": "branch",
-      "ignoreUnstable": false,
-      "versioning": "loose"
+      "matchPackageNames": ["/postgres/"],
+      "matchUpdateTypes": ["major", "patch"],
+      "enabled": false
     }
   ],
   "customManagers": [
