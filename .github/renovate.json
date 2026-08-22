@@ -1,27 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    ":semanticCommitsDisabled"
-  ],
-  "labels": [
-    "dependencies"
+    "github>mother-of-all-self-hosting/renovate-config#v1.0.0"
   ],
   "separateMajorMinor": true,
   "packageRules": [
     {
-      "matchManagers": ["github-actions"],
-      "commitBody": "[skip ci]",
-      "schedule": ["* * 1-7 */6 *"],
-      "automergeSchedule": ["* * 1-14 */6 *"],
-      "groupName": "GitHub Actions dependencies"
-    },
-    {
-      "matchManagers": ["mise", "pip_requirements", "pre-commit", "pyenv"],
-      "schedule": ["* * 1-7 */6 *"],
-      "automergeSchedule": ["* * 1-14 */6 *"]
-    },
-    {
+      "description": "A new Postgres major becomes a new variable, never a bump of an old one; Postgres has no patch releases in its versioning",
       "matchPackageNames": ["/postgres/"],
       "matchUpdateTypes": ["major", "patch"],
       "enabled": false
@@ -40,11 +25,5 @@
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver-coerced"
     }
-  ],
-  "pre-commit": {
-    "enabled": true
-  },
-  "pyenv": {
-    "enabled": true
-  }
+  ]
 }
