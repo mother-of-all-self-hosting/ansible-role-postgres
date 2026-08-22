@@ -10,6 +10,13 @@
       "matchPackageNames": ["/postgres/"],
       "matchUpdateTypes": ["major", "patch"],
       "enabled": false
+    },
+    {
+      "description": "Postgres minor releases (17.11 -> 17.12) are upstream bugfix-only: automerge via branch push once Molecule is green",
+      "matchManagers": ["custom.regex"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+      "automergeType": "branch"
     }
   ],
   "customManagers": [
