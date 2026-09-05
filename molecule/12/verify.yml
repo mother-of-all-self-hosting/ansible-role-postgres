@@ -29,7 +29,7 @@
         cmd: journalctl -xeu postgres.service
       changed_when: false
 
-    - name: Show Postgres systemd service status summary
+    - name: Show the Postgres verification summary
       ansible.builtin.debug:
         msg:
           - "Postgres systemd: {{ postgres_service.status.ActiveState }}"
