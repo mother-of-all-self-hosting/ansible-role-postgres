@@ -32,7 +32,7 @@
     - name: Retrieve the Postgres systemd service log for debugging
       when: postgres_debug_service_enabled | bool
       ansible.builtin.command:
-        cmd: journalctl -xeu postgres.service
+        cmd: journalctl --no-pager --output=cat --unit=postgres.service
       changed_when: false
 
     - name: Show the Postgres verification summary
