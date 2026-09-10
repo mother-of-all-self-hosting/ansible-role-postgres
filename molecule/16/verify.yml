@@ -9,6 +9,8 @@
   become: true
   gather_facts: false
   tasks:
+    - name: Verify that Postgres works
+      block:
     - name: Wait for the Postgres systemd service to become active (up to 180s)
       ansible.builtin.systemd_service:
         name: postgres.service
@@ -39,3 +41,19 @@
       ansible.builtin.debug:
         msg:
           - "Postgres systemd: {{ postgres_service.status.ActiveState }}"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the Postgres systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=postgres.service
+          register: postgres_service_log
+          changed_when: false
+
+        - name: Show the Postgres systemd service log
+          ansible.builtin.debug:
+            var: postgres_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "Postgres verification failed. The systemd service log is printed above."
