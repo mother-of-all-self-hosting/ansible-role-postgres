@@ -31,19 +31,19 @@
     that:
       - postgres_verify_failure_result is not none
       - postgres_verify_failure_expected_output in (postgres_verify_failure_result.msg | default(''))
-      - postgres_verify_managed_db.password not in (postgres_verify_failure_result | to_json)
+      - postgres_verify_managed_dbs | map(attribute='password') | select('in', postgres_verify_failure_result | to_json) | list == []
       - not postgres_verify_failure_sql_file.stat.exists
     fail_msg: >-
       Preparing the managed databases ({{ postgres_verify_failure_case }})
       {% if postgres_verify_failure_result is none %}
       succeeded, but it should have failed.
       {% else %}
-      did not fail as expected: the error should contain `{{ postgres_verify_failure_expected_output }}` but no password,
+      did not fail as expected: the error should contain `{{ postgres_verify_failure_expected_output }}` but no passwords,
       and the initialization SQL file (which contains passwords) should be deleted
       (left behind: {{ postgres_verify_failure_sql_file.stat.exists }}).
       Error:
-      {{ (postgres_verify_failure_result.msg | default('')) | replace(postgres_verify_managed_db.password, '<password>') }}
+      {{ (postgres_verify_failure_result.msg | default('')) | regex_replace(postgres_verify_managed_dbs | map(attribute='password') | map('regex_escape') | join('|'), '<password>') }}
       {% endif %}
     success_msg: >-
-      Preparing the managed databases ({{ postgres_verify_failure_case }}) failed, explaining why without leaking the password:
+      Preparing the managed databases ({{ postgres_verify_failure_case }}) failed, explaining why without leaking passwords:
       {{ postgres_verify_failure_result.msg | default('') }}

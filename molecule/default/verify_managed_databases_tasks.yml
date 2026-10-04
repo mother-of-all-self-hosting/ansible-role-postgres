@@ -46,11 +46,15 @@
   changed_when: false
   failed_when: false
 
+# Only `additional_sql_queries` create the extension (after switching to their database via `\c`),
+# so it must not show up in a database prepared after one which did that.
 - name: Assert the managed database is prepared
+  vars:
+    postgres_verify_managed_db_expected_extension: "{{ 'pg_trgm' if postgres_verify_managed_db.additional_sql_queries is defined else '' }}"
   ansible.builtin.assert:
     that:
       - postgres_verify_managed_db_owner.stdout == postgres_verify_managed_db.username
-      - postgres_verify_managed_db_extensions.stdout == 'pg_trgm'
+      - postgres_verify_managed_db_extensions.stdout == postgres_verify_managed_db_expected_extension
       - postgres_verify_managed_db_login.rc == 0
       - postgres_verify_managed_db_login.stdout == postgres_verify_managed_db.username
     fail_msg: >-
@@ -61,4 +65,5 @@
       `{{ postgres_verify_managed_db_login.stdout }}{{ postgres_verify_managed_db_login.stderr }}`
     success_msg: >-
       `{{ postgres_verify_managed_db.name }}` is owned by `{{ postgres_verify_managed_db.username }}`,
-      has the pg_trgm extension, and its user can log in with its password
+      {{ 'has' if postgres_verify_managed_db_expected_extension else 'does not have' }} the pg_trgm extension,
+      and its user can log in with its password

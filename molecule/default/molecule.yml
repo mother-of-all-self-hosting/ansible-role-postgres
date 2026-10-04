@@ -44,8 +44,9 @@ provisioner:
         postgres_gid: 1000
         postgres_connection_password: password
 
-        # A managed database (see verify_managed_databases.yml), with extra SQL
-        # which only a superuser may run, in that database rather than the default one.
+        # Managed databases (see verify_managed_databases.yml):
+        # - one with extra SQL which only a superuser may run, in that database rather than the default one
+        # - one with a password containing characters which need escaping in SQL
         postgres_managed_databases_additional:
           - name: molecule_managed_db
             username: molecule_managed_user
@@ -53,6 +54,9 @@ provisioner:
             additional_sql_queries:
               - '\c molecule_managed_db'
               - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+          - name: molecule_managed_db_escaping
+            username: molecule_managed_user_escaping
+            password: 'molecule-managed-pass''word\'
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
