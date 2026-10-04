@@ -8,10 +8,13 @@
   become: true
   gather_facts: false
 
-  vars:
-    postgres_verify_managed_db: "{{ postgres_managed_databases_additional[0] }}"
-
   tasks:
+    # A fact rather than a play variable, because the checks below override
+    # `postgres_managed_databases_additional` based on it.
+    - name: Determine the managed database to verify
+      ansible.builtin.set_fact:
+        postgres_verify_managed_db: "{{ postgres_managed_databases_additional[0] }}"
+
     - name: Verify the managed database which the role prepared while converging
       ansible.builtin.include_tasks: verify_managed_databases_tasks.yml
 
@@ -29,3 +32,24 @@
 
     - name: Verify the managed database after preparing it again
       ansible.builtin.include_tasks: verify_managed_databases_tasks.yml
+
+    # The failing statement echoes the password back in its error, to check that
+    # the error is shown without it.
+    - name: Verify that failing additional SQL fails the preparation
+      ansible.builtin.include_tasks: verify_managed_databases_failure_tasks.yml
+      vars:
+        postgres_verify_failure_case: failing additional SQL
+        postgres_verify_failure_managed_databases_additional:
+          - "{{ postgres_verify_managed_db | combine({'additional_sql_queries': postgres_verify_managed_db.additional_sql_queries + [postgres_verify_failure_query]}) }}"
+        postgres_verify_failure_query: "SELECT '{{ postgres_verify_managed_db.password }}'::integer;"
+        postgres_verify_failure_connection_hostname: postgres
+        postgres_verify_failure_expected_output: 'ERROR:  invalid input syntax for type integer'
+
+    - name: Verify that failing to connect fails the preparation
+      ansible.builtin.include_tasks: verify_managed_databases_failure_tasks.yml
+      vars:
+        postgres_verify_failure_case: failing to connect
+        postgres_verify_failure_managed_databases_additional:
+          - "{{ postgres_verify_managed_db }}"
+        postgres_verify_failure_connection_hostname: molecule-nonexistent-host
+        postgres_verify_failure_expected_output: 'psql: error:'
