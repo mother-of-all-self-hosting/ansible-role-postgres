@@ -348,6 +348,15 @@ postgres_container_shell_path: "{{ '/bin/sh' if postgres_container_image_suffix 
 
 postgres_systemd_required_services_list: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
 
+# Controls whether the systemd service only counts as started once Postgres accepts connections,
+# so that services ordered after it (`After=`) do not find it still initializing.
+# See the `ExecStartPost` in the systemd service template for how this is checked.
+postgres_systemd_readiness_check_enabled: true
+
+# Controls how long to wait for Postgres to accept connections.
+# If it does not within this time, the service counts as started anyway.
+postgres_systemd_readiness_check_timeout_seconds: 300
+
 # A list of databases (and their credentials) that this role will create and manage on the server.
 #
 # `postgres_managed_databases_auto` is managed by the playbook.
