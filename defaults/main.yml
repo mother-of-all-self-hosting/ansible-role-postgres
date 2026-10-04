@@ -445,9 +445,14 @@ postgres_import_schemas_ignore_regex: "^CREATE SCHEMA \\\"?({{ postgres_import_s
 #
 # For most (subsequent) runs, Postgres would already be running, so no waiting will be happening at all.
 #
+# With `postgres_systemd_readiness_check_enabled`, no waiting is needed at all: starting the systemd service
+# only completes once Postgres accepts connections (see the `ExecStartPost` in the systemd service template),
+# so any fixed delay on top of that would only slow things down.
+#
+# Otherwise, we wait a fixed amount of time and hope that it's enough.
 # On ARM, we wait some more. ARM32 devices are especially known for being slow.
 # ARM64 likely don't need such a long delay, but it doesn't hurt too much having it.
-postgres_managed_databases_postgres_start_wait_timeout_seconds: "{{ 45 if postgres_architecture in ['arm32', 'arm64'] else 15 }}"
+postgres_managed_databases_postgres_start_wait_timeout_seconds: "{{ 0 if postgres_systemd_readiness_check_enabled | bool else (45 if postgres_architecture in ['arm32', 'arm64'] else 15) }}"
 
 # Controls how many times (and how many seconds apart) initializing managed databases/users is retried,
 # when it fails because Postgres cannot be connected to (e.g. it is still starting up after the wait above).

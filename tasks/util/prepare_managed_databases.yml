@@ -7,7 +7,7 @@
   register: postgres_ensure_started_result
 
 - name: Wait a bit, so that Postgres can start
-  when: postgres_ensure_started_result.changed | bool
+  when: "postgres_ensure_started_result.changed | bool and (postgres_managed_databases_postgres_start_wait_timeout_seconds | int) > 0"
   ansible.builtin.wait_for:
     timeout: "{{ postgres_managed_databases_postgres_start_wait_timeout_seconds }}"
   delegate_to: 127.0.0.1
