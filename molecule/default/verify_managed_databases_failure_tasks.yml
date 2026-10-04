@@ -12,6 +12,9 @@
       vars:
         postgres_managed_databases_additional: "{{ postgres_verify_failure_managed_databases_additional }}"
         postgres_connection_hostname: "{{ postgres_verify_failure_connection_hostname }}"
+        # Failing to connect is retried, but retrying once is enough to see it given up on.
+        postgres_managed_databases_connection_retries: 1
+        postgres_managed_databases_connection_retry_delay_seconds: 1
 
     - name: Note that preparing the managed databases succeeded ({{ postgres_verify_failure_case }})
       ansible.builtin.set_fact:

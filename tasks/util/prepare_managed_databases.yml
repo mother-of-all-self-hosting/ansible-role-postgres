@@ -81,6 +81,11 @@
       # Judged below, after the SQL file (which contains passwords) is deleted
       # and outside of `no_log`, so that the failure can be explained.
       failed_when: false
+      # psql exits with 2 when it cannot connect to Postgres (or loses the connection).
+      # Running the SQL file again is safe, as it already runs on every installation.
+      until: postgres_managed_dbs_init_result.rc != 2
+      retries: "{{ postgres_managed_databases_connection_retries }}"
+      delay: "{{ postgres_managed_databases_connection_retry_delay_seconds }}"
 
     - name: Delete managed database initialization SQL file
       ansible.builtin.file:

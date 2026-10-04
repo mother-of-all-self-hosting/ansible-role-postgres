@@ -41,6 +41,28 @@
         loop_var: postgres_verify_managed_db
         label: "{{ postgres_verify_managed_db.name }}"
 
+    # Postgres may not accept connections yet when preparation starts (e.g. when it starts up slower
+    # than `postgres_managed_databases_postgres_start_wait_timeout_seconds`). Postgres starts up too fast
+    # here to reproduce that reliably, so it is made unreachable for a while instead, which psql fails on the same way.
+    - name: Make Postgres unreachable for a while
+      ansible.builtin.shell:
+        cmd: >-
+          docker network disconnect postgres postgres
+          && systemd-run --on-active=10 docker network connect postgres postgres
+      changed_when: true
+
+    - name: Prepare the managed databases while Postgres is unreachable for a while
+      ansible.builtin.include_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: util/prepare_managed_databases
+
+    - name: Verify the managed databases after preparing them while Postgres was unreachable for a while
+      ansible.builtin.include_tasks: verify_managed_databases_tasks.yml
+      loop: "{{ postgres_verify_managed_dbs }}"
+      loop_control:
+        loop_var: postgres_verify_managed_db
+        label: "{{ postgres_verify_managed_db.name }}"
+
     # The failing statement echoes a password (the one which needs escaping) back in its error,
     # to check that the error is shown without it.
     - name: Verify that failing additional SQL fails the preparation

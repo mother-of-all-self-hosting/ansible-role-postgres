@@ -440,6 +440,11 @@ postgres_import_schemas_ignore_regex: "^CREATE SCHEMA \\\"?({{ postgres_import_s
 # ARM64 likely don't need such a long delay, but it doesn't hurt too much having it.
 postgres_managed_databases_postgres_start_wait_timeout_seconds: "{{ 45 if postgres_architecture in ['arm32', 'arm64'] else 15 }}"
 
+# Controls how many times (and how many seconds apart) initializing managed databases/users is retried,
+# when it fails because Postgres cannot be connected to (e.g. it is still starting up after the wait above).
+postgres_managed_databases_connection_retries: 10
+postgres_managed_databases_connection_retry_delay_seconds: 3
+
 # Defines the `PGDATA` environment variable for the Postgres server.
 #
 # We explicitly set it to avoid surprises caused by Postgres >= v18 which changed the default value for this
