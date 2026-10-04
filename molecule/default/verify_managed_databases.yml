@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify Postgres managed databases
+  hosts: all
+  become: true
+  gather_facts: false
+
+  vars:
+    postgres_verify_managed_db: "{{ postgres_managed_databases_additional[0] }}"
+
+  tasks:
+    - name: Verify the managed database which the role prepared while converging
+      ansible.builtin.include_tasks: verify_managed_databases_tasks.yml
+
+    - name: Include the variables the Postgres role relies on
+      ansible.builtin.include_role:
+        name: com.devture.ansible.role.systemd_docker_base
+        public: true
+
+    # Preparation runs on every installation, against databases which already exist,
+    # so it has to succeed on an already-prepared server and leave it prepared.
+    - name: Prepare the managed databases again
+      ansible.builtin.include_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: util/prepare_managed_databases
+
+    - name: Verify the managed database after preparing it again
+      ansible.builtin.include_tasks: verify_managed_databases_tasks.yml
