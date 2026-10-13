@@ -121,6 +121,56 @@ ansible-playbook -i inventory/hosts setup.yml --tags=import-postgres \
 - `postgres_default_import_database` defaults to `main`, which is useful for importing multiple databases (for dumps made with `pg_dumpall`). If you're importing a single database (e.g. `miniflux`), consider changing `postgres_default_import_database` to the name of the database (e.g. `miniflux`)
 - after importing a large database, it's a good idea to run [an `ANALYZE` operation](https://www.postgresql.org/docs/current/sql-analyze.html) to make Postgres rebuild its database statistics and optimize its query planner. You can easily do this via the playbook by running `ansible-playbook -i inventory/hosts setup.yml --tags=run-postgres-vacuum -e postgres_vacuum_preset=analyze` (refer to [Vacuuming PostgreSQL](#vacuuming-postgresql) for more details).
 
+### Example playbook
+
+```yaml
+- hosts: servers
+  roles:
+    - role: galaxy/com.devture.ansible.role.systemd_docker_base
+
+    - role: galaxy/postgres
+
+    - role: another_role
+```
+
+Example playbook configuration (`group_vars/servers` or other):
+
+```yaml
+postgres_identifier: my-postgres
+
+postgres_base_path: "{{ my_base_path }}/postgres"
+
+postgres_container_network: "{{ my_container_container_network }}"
+
+postgres_uid: "{{ my_uid }}"
+postgres_gid: "{{ my_gid }}"
+
+# If enabled, unix socket will be available at `{{ postgres_run_path }}` on the host.
+postgres_container_unix_socket_enabled: true
+
+postgres_vacuum_default_databases_list: ["mydb", "anotherdb"]
+
+postgres_systemd_services_to_stop_for_maintenance_list: |
+  {{
+    (['my-service.service'])
+  }}
+
+postgres_managed_databases: |
+  {{
+    [{
+      'name': my_database_name,
+      'username': my_database_username,
+      'password': my_database_password,
+    }]
+    +
+    [{
+      'name': another_database_name,
+      'username': another_database_username,
+      'password': another_database_password,
+    }]
+  }}
+```
+
 ## Maintenance
 
 Table of contents:
