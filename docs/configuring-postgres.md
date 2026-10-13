@@ -43,7 +43,7 @@ To enable Postgres with this role, add the following configuration to your `vars
 postgres_enabled: true
 
 # Put a strong password below, generated with `pwgen -s 64 1` or in another way
-postgres_root_password: ""
+postgres_connection_password: ""
 
 ########################################################################
 #                                                                      #
