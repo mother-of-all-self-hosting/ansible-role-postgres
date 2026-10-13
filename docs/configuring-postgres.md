@@ -102,6 +102,7 @@ Table of contents:
 - [Vacuuming PostgreSQL](#vacuuming-postgresql), for when you wish to run a Postgres [VACUUM](https://www.postgresql.org/docs/current/sql-vacuum.html) (optimizing disk space)
 - [Backing up PostgreSQL](#backing-up-a-database), for when you wish to make a backup
 - [Upgrading PostgreSQL](#upgrading-postgresql), for upgrading to new major versions of PostgreSQL. Such **manual upgrades are sometimes required**.
+- [Tuning PostgreSQL](#tuning-postgresql) to make it run faster
 
 ### Vacuuming PostgreSQL
 
@@ -174,6 +175,20 @@ As part of the upgrade, the database is dumped to `/tmp`, an upgraded and empty 
 ### Flag: `postgres_dump_name`
 
 To save disk space in `/tmp`, the dump file is gzipped on the fly at the expense of CPU usage. If you have plenty of space in `/tmp` and would rather avoid gzipping, you can explicitly pass a dump filename which doesn't end in `.gz`. Example: `--extra-vars="postgres_dump_name=postgres-dump.sql"`
+
+### Tuning PostgreSQL
+
+PostgreSQL can be [tuned](https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server) to make it run faster. This is done by passing extra arguments to the Postgres process.
+
+The [Postgres Ansible role](https://github.com/mother-of-all-self-hosting/ansible-role-postgres) **already does some tuning by default**, which matches the [tuning logic](https://github.com/le0pard/pgtune/blob/master/src/features/configuration/configurationSlice.js) done by websites like <https://pgtune.leopard.in.ua/>. You can manually influence some of the tuning variables. These parameters (variables) are injected via the `postgres_postgres_process_extra_arguments_auto` variable.
+
+Most users should be fine with the automatically-done tuning. However, you may wish to:
+
+- **adjust the automatically-determined tuning parameters manually**: change the values for the tuning variables defined in the Postgres role's [default configuration file](../defaults/main.yml) (see `postgres_max_connections`, `postgres_data_storage` etc). These variables are ultimately passed to Postgres via a `postgres_postgres_process_extra_arguments_auto` variable
+
+- **turn automatically-performed tuning off**: override it like this: `postgres_postgres_process_extra_arguments_auto: []`
+
+- **add additional tuning parameters**: define your additional Postgres configuration parameters in `postgres_postgres_process_extra_arguments_custom`. See `postgres_postgres_process_extra_arguments_auto` defined in the Postgres role's [default configuration file](../defaults/main.yml) for inspiration
 
 ## Troubleshooting
 
