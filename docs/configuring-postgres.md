@@ -83,11 +83,13 @@ Table of contents:
 > [!WARNING]
 > **Modifying the database directly (especially as services are running) is dangerous and may lead to irreversible database corruption.** When in doubt, consider [making a backup](#backing-up-postgresql). You might also want to use a web user interface software like [Adminer](https://www.adminer.org/) and [pgAdmin](https://www.pgadmin.org/).
 
-You can use the CLI installed to the directory specified with `postgres_bin_path` (default: `/postgres/bin/`) for getting interactive terminal access to the Postgres server.
+You can use the CLI installed to the directory specified with `postgres_bin_path` (default: `/postgres/bin/`) for getting interactive terminal access ([psql](https://www.postgresql.org/docs/current/app-psql.html)) to the PostgreSQL server.
 
-To see the available databases, run `SHOW DATABASES`.
+By default, this tool puts you in the `main` database, which contains nothing.
 
-To change to another existing database (for example `miniflux`), run `USE miniflux`.
+To see the available databases, run `\list` (or just `\l`).
+
+To change to another database (for example `miniflux`), run `\connect miniflux` (or just `\c miniflux`).
 
 You can then proceed to write queries. Example: `SELECT COUNT(*) FROM users;`
 
