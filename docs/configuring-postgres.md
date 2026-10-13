@@ -95,6 +95,32 @@ By default the role is configured to bind-mount the Postgres Unix socket directo
 
 It is also possible to control if helper CLI scripts should prefer Unix socket connections (when available) instead of TCP connection with the `postgres_cli_use_unix_socket_enabled` variable. This does not affect server behavior.
 
+### Importing database
+
+### Prerequisites
+
+The playbook supports importing Postgres dump files in **text** (e.g. `pg_dump > dump.sql`) or **gzipped** formats (e.g. `pg_dump | gzip -c > dump.sql.gz`).
+
+Importing multiple databases (as dumped by `pg_dumpall`) is also supported.
+
+Before doing the actual import, **you need to upload your Postgres dump file to the server** (any path is okay).
+
+### Importing a dump file
+
+To import, run this command (make sure to replace `SERVER_PATH_TO_POSTGRES_DUMP_FILE` with a file path on your server):
+
+```sh
+ansible-playbook -i inventory/hosts setup.yml --tags=import-postgres \
+--extra-vars=server_path_postgres_dump=SERVER_PATH_TO_POSTGRES_DUMP_FILE \
+--extra-vars=postgres_default_import_database=main
+```
+
+💡 **Notes**:
+
+- `SERVER_PATH_TO_POSTGRES_DUMP_FILE` must be a file path to a Postgres dump file on the server (not on your local machine!)
+- `postgres_default_import_database` defaults to `main`, which is useful for importing multiple databases (for dumps made with `pg_dumpall`). If you're importing a single database (e.g. `miniflux`), consider changing `postgres_default_import_database` to the name of the database (e.g. `miniflux`)
+- after importing a large database, it's a good idea to run [an `ANALYZE` operation](https://www.postgresql.org/docs/current/sql-analyze.html) to make Postgres rebuild its database statistics and optimize its query planner. You can easily do this via the playbook by running `ansible-playbook -i inventory/hosts setup.yml --tags=run-postgres-vacuum -e postgres_vacuum_preset=analyze` (refer to [Vacuuming PostgreSQL](#vacuuming-postgresql) for more details).
+
 ## Maintenance
 
 Table of contents:
@@ -143,7 +169,7 @@ postgres \
 > /postgres.sql.gz
 ```
 
-Restoring a backup made this way can be done by [importing it](#importing).
+Restoring a backup made this way can be done by [importing it](#importing-database).
 
 >[!NOTE]
 > To automatically make Postgres database backups on a fixed schedule, consider enabling dedicated services such as [docker-postgres-backup-local](https://github.com/prodrigestivill/docker-postgres-backup-local).
