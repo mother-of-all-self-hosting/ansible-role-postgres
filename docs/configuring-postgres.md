@@ -74,10 +74,6 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, the Postgres instance becomes available.
 
-Table of contents:
-
-- [Getting a database terminal](#getting-a-database-terminal), for when you wish to execute SQL queries
-
 ### Getting a database terminal
 
 > [!WARNING]
@@ -100,6 +96,34 @@ By default the role is configured to bind-mount the Postgres Unix socket directo
 It is also possible to control if helper CLI scripts should prefer Unix socket connections (when available) instead of TCP connection with the `postgres_cli_use_unix_socket_enabled` variable. This does not affect server behavior.
 
 ## Maintenance
+
+Table of contents:
+
+- [Vacuuming PostgreSQL](#vacuuming-postgresql), for when you wish to run a Postgres [VACUUM](https://www.postgresql.org/docs/current/sql-vacuum.html) (optimizing disk space)
+
+### Vacuuming PostgreSQL
+
+Deleting lots data from Postgres does not make it release disk space, until you perform a [`VACUUM` operation](https://www.postgresql.org/docs/current/sql-vacuum.html).
+
+You can run different `VACUUM` operations via the playbook, with the default preset being `vacuum-complete`:
+
+- (default) `vacuum-complete`: stops all services temporarily and runs `VACUUM FULL VERBOSE ANALYZE`.
+- `vacuum-full`: stops all services temporarily and runs `VACUUM FULL VERBOSE`
+- `vacuum`: runs `VACUUM VERBOSE` without stopping any services
+- `vacuum-analyze` runs `VACUUM VERBOSE ANALYZE` without stopping any services
+- `analyze` runs `ANALYZE VERBOSE` without stopping any services (this is just [ANALYZE](https://www.postgresql.org/docs/current/sql-analyze.html) without doing a vacuum, so it's faster)
+
+**Note**: for the `vacuum-complete` and `vacuum-full` presets, you'll need plenty of available disk space in your Postgres data directory (e.g. `/mash/postgres/data`). These presets also stop all services while the vacuum operation is running.
+
+Example playbook invocations:
+
+```sh
+# Run the default `vacuum-complete` preset and restarts all services
+ansible-playbook -i inventory/hosts setup.yml --tags=run-postgres-vacuum
+
+# Run the `analyze` preset with all services remaining operational at all times
+ansible-playbook -i inventory/hosts setup.yml --tags=run-postgres-vacuum -e postgres_vacuum_preset=analyze
+```
 
 ### Backing up a database
 
