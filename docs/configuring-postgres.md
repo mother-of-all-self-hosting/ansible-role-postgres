@@ -240,15 +240,15 @@ Running the command migrates all databases, users, etc. on the Postgres server.
 
 There are several options which can be set to the command. See below for details.
 
-### Flag: `postgres_auto_upgrade_backup_data_path`
+#### Flag: `postgres_auto_upgrade_backup_data_path`
 
 To have the old directory renamed to a different path, pass a flag to the command above, like this: `--extra-vars="postgres_auto_upgrade_backup_data_path=/another/disk/postgres-before-upgrade"`
 
-### Flag: `postgres_dump_dir`
+#### Flag: `postgres_dump_dir`
 
 As part of the upgrade, the database is dumped to `/tmp`, an upgraded and empty Postgres server is started, and then the dump is restored into the new server. To use a different directory for the dump, pass a flag to the command above, like this: `--extra-vars="postgres_dump_dir=/directory/to/dump/here"`
 
-### Flag: `postgres_dump_name`
+#### Flag: `postgres_dump_name`
 
 To save disk space in `/tmp`, the dump file is gzipped on the fly at the expense of CPU usage. If you have plenty of space in `/tmp` and would rather avoid gzipping, you can explicitly pass a dump filename which doesn't end in `.gz`. Example: `--extra-vars="postgres_dump_name=postgres-dump.sql"`
 
