@@ -74,7 +74,14 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, the Postgres instance becomes available.
 
+Table of contents:
+
+- [Getting a database terminal](#getting-a-database-terminal), for when you wish to execute SQL queries
+
 ### Getting a database terminal
+
+> [!WARNING]
+> **Modifying the database directly (especially as services are running) is dangerous and may lead to irreversible database corruption.** When in doubt, consider [making a backup](#backing-up-postgresql). You might also want to use a web user interface software like [Adminer](https://www.adminer.org/) and [pgAdmin](https://www.pgadmin.org/).
 
 You can use the CLI installed to the directory specified with `postgres_bin_path` (default: `/postgres/bin/`) for getting interactive terminal access to the Postgres server.
 
@@ -83,9 +90,6 @@ To see the available databases, run `SHOW DATABASES`.
 To change to another existing database (for example `miniflux`), run `USE miniflux`.
 
 You can then proceed to write queries. Example: `SELECT COUNT(*) FROM users;`
-
->[!WARNING]
-> Modifying the database directly (especially as services are running) is dangerous and may lead to irreversible database corruption. If you are not perfectly sure, create a backup!
 
 ### Configuring Unix socket support
 
