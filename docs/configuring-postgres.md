@@ -1,28 +1,31 @@
 <!--
-SPDX-FileCopyrightText: 2020 - 2024 MDAD project contributors
-SPDX-FileCopyrightText: 2020 - 2024 Slavi Pantaleev
-SPDX-FileCopyrightText: 2020 Aaron Raimist
+SPDX-FileCopyrightText: 2019-2024 Slavi Pantaleev
 SPDX-FileCopyrightText: 2020 Chris van Dijk
 SPDX-FileCopyrightText: 2020 Dominik Zajac
+SPDX-FileCopyrightText: 2020 Hardy Erlinger
 SPDX-FileCopyrightText: 2020 Mickaël Cornière
+SPDX-FileCopyrightText: 2020, 2021 Aaron Raimist
+SPDX-FileCopyrightText: 2020-2024 MDAD project contributors
+SPDX-FileCopyrightText: 2021 Marc Leuser
 SPDX-FileCopyrightText: 2022 François Darveau
 SPDX-FileCopyrightText: 2022 Julian Foad
 SPDX-FileCopyrightText: 2022 Warren Bailey
 SPDX-FileCopyrightText: 2023 Antonis Christofides
 SPDX-FileCopyrightText: 2023 Felix Stupp
 SPDX-FileCopyrightText: 2023 Pierre 'McFly' Marty
-SPDX-FileCopyrightText: 2024 - 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2024 Kim Brose
+SPDX-FileCopyrightText: 2024-2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 # Setting up Postgres
 
-This is an [Ansible](https://www.ansible.com/) role which installs [Postgres](https://postgres.org) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [PostgreSQL](https://www.postgresql.org) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-Postgres is a powerful, open-source object-relational database system.
+PostgreSQL is a powerful, open-source object-relational database system with over 35 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
 
-See the project's [documentation](https://postgres.org/documentation/) to learn what Postgres does and why it might be useful to you.
+See the project's [documentation](https://www.postgresql.org/docs/) to learn what PostgreSQL does and why it might be useful to you.
 
 ## Adjusting the playbook configuration
 
