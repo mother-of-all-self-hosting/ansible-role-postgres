@@ -20,7 +20,7 @@ options:
   psql_command:
     description:
       - The command (as a list of arguments) which starts C(psql), connected as a superuser.
-        C(psql) arguments are appended to it. It has to pass stdin through (e.g. C(docker run -i)).
+        C(psql) arguments are appended to it. It has to pass stdin through (e.g. C(docker exec -i)).
     type: list
     elements: str
     required: true

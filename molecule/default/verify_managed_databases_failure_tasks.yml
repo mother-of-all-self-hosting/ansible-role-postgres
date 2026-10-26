@@ -3,6 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
+- name: Make Postgres reject connections ({{ postgres_verify_failure_case }})
+  when: postgres_verify_failure_reject_connections | bool
+  ansible.builtin.command:
+    cmd: "{{ postgres_verify_reject_connections_command }}"
+  changed_when: true
+
 - name: Prepare the managed databases, expecting it to fail ({{ postgres_verify_failure_case }})
   block:
     - name: Prepare the managed databases ({{ postgres_verify_failure_case }})
@@ -11,7 +17,6 @@
         tasks_from: util/prepare_managed_databases
       vars:
         postgres_managed_databases_additional: "{{ postgres_verify_failure_managed_databases_additional }}"
-        postgres_connection_hostname: "{{ postgres_verify_failure_connection_hostname }}"
         # Failing to connect is retried, but retrying once is enough to see it given up on.
         postgres_managed_databases_connection_retries: 1
         postgres_managed_databases_connection_retry_delay_seconds: 1
@@ -23,6 +28,12 @@
     - name: Note how preparing the managed databases failed ({{ postgres_verify_failure_case }})
       ansible.builtin.set_fact:
         postgres_verify_failure_result: "{{ ansible_failed_result }}"
+  always:
+    - name: Make Postgres accept connections again ({{ postgres_verify_failure_case }})
+      when: postgres_verify_failure_reject_connections | bool
+      ansible.builtin.command:
+        cmd: "{{ postgres_verify_accept_connections_command }}"
+      changed_when: true
 
 - name: Assert that preparing the managed databases failed as expected ({{ postgres_verify_failure_case }})
   ansible.builtin.assert:
