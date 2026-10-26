@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+# cli-non-interactive is exercised by verify_managed_databases.yml.
+- name: Verify the Postgres helper scripts
+  hosts: all
+  become: true
+  gather_facts: false
+
+
+  tasks:
+    - name: Run a query through the cli script (piped in)
+      ansible.builtin.command:
+        cmd: /postgres/bin/cli -tA
+        stdin: SELECT current_user;
+      register: postgres_verify_cli
+      changed_when: false
+
+    - name: Assert the cli script runs queries
+      ansible.builtin.assert:
+        that: (postgres_verify_cli.stdout | trim) == 'root'
+        fail_msg: "The cli script did not run the query as `root`: {{ postgres_verify_cli.stdout }}{{ postgres_verify_cli.stderr }}"
+        success_msg: "The cli script runs queries"
