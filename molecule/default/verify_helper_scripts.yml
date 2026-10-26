@@ -68,3 +68,42 @@
           - postgres_verify_dump.stdout is search('PostgreSQL database cluster dump')
         fail_msg: "The dump is not a complete Postgres cluster dump: {{ postgres_verify_dump.stdout }}{{ postgres_verify_dump.stderr }}"
         success_msg: "The dump-all script makes a complete Postgres cluster dump"
+
+    # A dump of the whole server (as made above) cannot be imported back into the same server,
+    # as it re-creates roles and databases which exist, so a small dump is made up for this.
+    - name: Make a small compressed dump to import
+      ansible.builtin.shell:
+        cmd: >-
+          set -o pipefail
+          && docker exec -i postgres sh -c 'zstd --stdout' > {{ postgres_verify_dump_directory }}/molecule-import.sql.zst
+        stdin: |
+          CREATE DATABASE molecule_import;
+          \c molecule_import
+          CREATE TABLE probe (value text);
+          INSERT INTO probe VALUES ('molecule-import-value');
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Include the variables the Postgres role relies on
+      ansible.builtin.include_role:
+        name: com.devture.ansible.role.systemd_docker_base
+        public: true
+
+    - name: Import the small dump
+      ansible.builtin.include_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: import_postgres
+      vars:
+        server_path_postgres_dump: "{{ postgres_verify_dump_directory }}/molecule-import.sql.zst"
+
+    - name: Read the imported data back
+      ansible.builtin.command:
+        cmd: /postgres/bin/cli-non-interactive -d molecule_import -tAc "SELECT value FROM probe"
+      register: postgres_verify_imported
+      changed_when: false
+
+    - name: Assert the dump was imported
+      ansible.builtin.assert:
+        that: (postgres_verify_imported.stdout | trim) == 'molecule-import-value'
+        fail_msg: "Importing did not bring the data in: {{ postgres_verify_imported.stdout }}{{ postgres_verify_imported.stderr }}"
+        success_msg: "Importing a compressed dump works"
