@@ -41,6 +41,28 @@
         loop_var: postgres_verify_managed_db
         label: "{{ postgres_verify_managed_db.name }}"
 
+    # Passwords are only set when they differ from the stored ones, so changing one has to be noticed.
+    # The ones after this restore the original password.
+    - name: Determine the managed databases with a changed password
+      ansible.builtin.set_fact:
+        postgres_verify_managed_dbs_changed_password:
+          - "{{ postgres_verify_managed_dbs[0] | combine({'password': 'molecule-changed-password'}) }}"
+          - "{{ postgres_verify_managed_dbs[1] }}"
+
+    - name: Prepare the managed databases with a changed password
+      ansible.builtin.include_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: util/prepare_managed_databases
+      vars:
+        postgres_managed_databases_additional: "{{ postgres_verify_managed_dbs_changed_password }}"
+
+    - name: Verify the managed databases after preparing them with a changed password
+      ansible.builtin.include_tasks: verify_managed_databases_tasks.yml
+      loop: "{{ postgres_verify_managed_dbs_changed_password }}"
+      loop_control:
+        loop_var: postgres_verify_managed_db
+        label: "{{ postgres_verify_managed_db.name }}"
+
     # Postgres may not accept connections yet when preparation starts (e.g. when it starts up slower
     # than `postgres_managed_databases_postgres_start_wait_timeout_seconds`). Postgres starts up too fast
     # here to reproduce that reliably, so it is made unreachable for a while instead, which psql fails on the same way.
